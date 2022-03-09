@@ -61,7 +61,23 @@ public class SegwitAddrCoder {
         }
         return (Int(dec.checksum[0]), conv)
     }
-    
+    public func defaultDecode(hrp: String, addr: String) throws -> Data {
+        let dec = try bech32.decode(addr)
+        guard dec.hrp == hrp else {
+            throw CoderError.hrpMismatch(dec.hrp, hrp)
+        }
+        guard dec.checksum.count >= 1 else {
+            throw CoderError.checksumSizeTooLow
+        }
+        let conv = try convertBits(from: 5, to: 8, pad: false, idata: dec.checksum.advanced(by: 0))
+        guard conv.count >= 2 && conv.count <= 40 else {
+            throw CoderError.dataSizeMismatch(conv.count)
+        }
+        if conv.count != 20 && conv.count != 32 {
+            throw CoderError.segwitV0ProgramSizeMismatch(conv.count)
+        }
+        return conv
+    }
     /// Encode segwit address
     public func encode(hrp: String, version: Int, program: Data) throws -> String {
         var enc = Data([UInt8(version)])
@@ -76,7 +92,7 @@ public class SegwitAddrCoder {
         var enc = Data()
         enc.append(try convertBits(from: 8, to: 5, pad: true, idata: program))
         let result = bech32.encode(hrp, values: enc)
-        guard let _ = try? decode(hrp: hrp, addr: result) else {
+        guard let _ = try? defaultDecode(hrp: hrp, addr: result) else {
             throw CoderError.encodingCheckFailed
         }
         return result
