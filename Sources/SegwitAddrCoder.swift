@@ -72,6 +72,15 @@ public class SegwitAddrCoder {
         }
         return result
     }
+    public func defaultEncode(hrp: String, program: Data) throws -> String {
+        var enc = Data()
+        enc.append(try convertBits(from: 8, to: 5, pad: true, idata: program))
+        let result = bech32.encode(hrp, values: enc)
+        guard let _ = try? decode(hrp: hrp, addr: result) else {
+            throw CoderError.encodingCheckFailed
+        }
+        return result
+    }
 }
 
 extension SegwitAddrCoder {
