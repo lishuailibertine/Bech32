@@ -39,7 +39,7 @@ public class SegwitAddrCoder {
         }
         return odata
     }
-    
+    public init(){}
     /// Decode segwit address
     public func decode(hrp: String, addr: String) throws -> (version: Int, program: Data) {
         let dec = try bech32.decode(addr)

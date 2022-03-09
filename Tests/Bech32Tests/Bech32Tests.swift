@@ -114,7 +114,6 @@ class Bech32Tests: XCTestCase {
             }
         }
     }
-    
     func testInvalidChecksum() {
         for invalid in _invalidChecksum {
             let checksum = invalid.bech32
