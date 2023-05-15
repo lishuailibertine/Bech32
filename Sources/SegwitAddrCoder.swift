@@ -88,6 +88,17 @@ public class SegwitAddrCoder {
         }
         return result
     }
+    
+    public func encode(hrp: String, version: UInt8, program: Data, encoding: Bech32.Encoding) throws -> String {
+        var enc = Data([version])
+        enc.append(try convertBits(from: 8, to: 5, pad: true, idata: program))
+        let result = bech32.encode(hrp, values: enc, encoding: encoding)
+        guard let _ = try? decode(hrp: hrp, addr: result) else {
+            throw CoderError.encodingCheckFailed
+        }
+        return result
+    }
+    
     public func defaultEncode(hrp: String, program: Data) throws -> String {
         var enc = Data()
         enc.append(try convertBits(from: 8, to: 5, pad: true, idata: program))
